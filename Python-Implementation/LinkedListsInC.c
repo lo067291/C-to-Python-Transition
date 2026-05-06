@@ -1,0 +1,151 @@
+//Linked List code taught in CS1 3502C
+#include<stdio.h>
+#include<stdlib.h>
+typedef struct node
+{
+    int data;
+    struct node* next;
+}node;
+
+//this function takes an item and insert it in the linked list pointed by root.
+node* create_node(int item) {
+    node* temp = (node*)malloc(sizeof(node));
+    temp->data = item;
+    temp->next = NULL;
+    return temp;
+}
+
+//inserts for front only
+node* insert_front(node* head, int item)
+{
+    node* temp = create_node(item);
+    temp->next = head;
+    return temp;
+}
+node* insert_sorted(node* head, int item)//this is for descending order
+{
+    node* temp = create_node(item);
+
+    if (head == NULL || head->data > item) {//if there is no list or if the current heads data is greater than the data we want to insert we make our new data the head of the list
+        temp->next = head;//temp next points to current head
+        return temp;
+    }
+
+    node* current = head;
+    //while next is not null and less than current data move foward
+    while (current->next != NULL && current->next->data < item) {
+        current = current->next;
+    }
+
+    temp->next = current->next;
+    current->next = temp;
+
+    return head;
+}
+//this function takes an item and insert it in the end of the linked list
+node* insert_end(node* root, int item)
+{
+    node* temp = create_node(item);//makes a node
+    node* temp2 = root;
+    if (root == NULL) {
+        temp->next = NULL;
+        return temp;
+    }
+    else {
+        while (temp2->next != NULL) {
+            temp2 = temp2->next;
+        }
+        temp2->next = temp;
+    }
+    return root;
+
+
+}
+/*this function deletes the first occurrence of a given item from linked list.
+it returns the updated/original root
+*/
+node* DelList(node* head, int item)
+{
+    //null case
+    if (head == NULL) return head;
+
+    //if item is first node
+    if (head->data == item) {
+        node* temp = head->next;//saves the rest of the list
+        free(head);
+        return temp;
+    }
+
+    //what if it is in the middle
+    node* temp = head;//make a walker for the list
+
+    while (temp->next != NULL && temp->next->data != item){
+        temp = temp->next;//moves to the next node
+    }
+
+    if (temp->next == NULL) {
+        return head;//nothing was found
+    }
+
+    node* temp2 = temp->next;//save the node to delete
+    temp->next = temp->next->next;
+    free(temp2);
+    return head;
+}
+
+void display(node* t)
+{
+    printf("\nPrinting your linked list.......");
+    while(t!=NULL)
+    {
+        printf("%d ", t->data);
+        t= t->next;
+    }
+    printf("\n");
+}
+
+int main()
+{
+    node* root = NULL;
+    int ch, ele, del;
+
+    while(1)
+    {
+        printf("\nMenu: 1. insert front, 2. insert end, 3. delete, 5. sorted insert, 4. exit: ");
+        scanf("%d",&ch);
+
+        if(ch==4) {
+            printf("\nGOOD BYE>>>>\n");
+            break;
+        }
+
+        if(ch==1) {
+            printf("\nEnter data: ");
+            scanf("%d",&ele);
+            root = insert_front(root, ele);
+            display(root);
+        }
+
+        if(ch==2) {
+            printf("\nEnter data: ");
+            scanf("%d",&ele);
+            root = insert_end(root, ele);
+            display(root);
+        }
+
+        if(ch==3) {
+            printf("\nEnter data to delete: ");
+            scanf("%d",&del);
+            root = DelList(root, del);
+            display(root);
+        }
+
+        if(ch==5) {
+            printf("\nEnter data: ");
+            scanf("%d",&ele);
+            root = insert_sorted(root, ele);
+            display(root);
+        }
+    }
+    return 0;
+}
