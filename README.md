@@ -14,20 +14,20 @@ This repository documents my transition from C to Python as a Computer Engineeri
 
 ## 📂 Repository Structure
 
-### C Implementation (`c_implementation/`)
-- **linked_list.c** - Full linked list implementation from CS1
+### C Implementation (`C-Implementation/`)
+- **LinkedListsInC.c** - Full linked list implementation from CS1
   - Insert front/end/sorted
   - Delete by value
   - Display list
   - Manual memory management with `malloc()` and `free()`
 
-### Python Implementation (`python_implementation/`)
-- **linked_list.py** - Equivalent Python implementation
+### Python Implementation (`Python-Implementation/`)
+- **LinkedListsInPython.py** - Equivalent Python implementation
   - Object-oriented approach
   - Automatic memory management
   - More concise syntax
 
-### Comparison Document (`comparison.md`)
+### Comparison Document (`Comparison.md`)
 Key differences I've learned between C and Python approaches
 
 ## 🔑 Key Learnings
