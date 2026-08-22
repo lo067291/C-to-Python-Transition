@@ -1,62 +1,42 @@
-# C-to-Python-Transition
-Learning Python as a C programmer - documenting my transition and building foundational projects
+# C to Python Data Structures Transition
 
+## Project Overview
 
-# C to Python Transition - Data Structures
+Ports fundamental data structures from C to Python to build cross-language 
+proficiency and deepen understanding of memory management, algorithmic 
+complexity, and language-level design tradeoffs.
 
-## 📌 Overview
-This repository documents my transition from C to Python as a Computer Engineering student. I'm comparing implementations of fundamental data structures to understand the differences in memory management, syntax, and programming paradigms.
+## Structures Implemented
 
-## 🎓 Background
-- **CS1 (COP 3502C)** at UCF - Implemented data structures in C
-- Now learning Python for machine learning and data science applications
-- Comparing low-level (C) vs high-level (Python) approaches
+| Structure | C Implementation | Python Implementation |
+|---|---|---|
+| Linked List | linked_list/linked_list.c | linked_list/linked_list.py |
+| Stack | stack/stack.c | stack/stack.py |
+| Queue | queue/queue.c | queue/queue_impl.py |
+| Hash Table | hashtable/hashtable.c | hashtable/hashtable.py |
 
-## 📂 Repository Structure
+## Technical Deep Dive
 
-### C Implementation (`C-Implementation/`)
-- **LinkedListsInC.c** - Full linked list implementation from CS1
-  - Insert front/end/sorted
-  - Delete by value
-  - Display list
-  - Manual memory management with `malloc()` and `free()`
+See [comparison.md](comparison.md) for detailed analysis of memory 
+management differences, struct vs. class design, hash table 
+implementation tradeoffs, and full complexity comparisons between the 
+C and Python implementations.
 
-### Python Implementation (`Python-Implementation/`)
-- **LinkedListsInPython.py** - Equivalent Python implementation
-  - Object-oriented approach
-  - Automatic memory management
-  - More concise syntax
+## How to Run
 
-### Comparison Document (`Comparison.md`)
-Key differences I've learned between C and Python approaches
+Each structure includes a `main()` (C) or `if __name__ == "__main__"` 
+(Python) block with a working demonstration.
 
-## 🔑 Key Learnings
+## Author
 
-### Memory Management
-- **C**: Manual allocation (`malloc`) and deallocation (`free`)
-- **Python**: Automatic garbage collection
-
-### Data Structures
-- **C**: Structs and pointers for nodes
-- **Python**: Classes and object references
-
-### Syntax
-- **C**: More verbose, explicit type declarations
-- **Python**: More concise, dynamic typing
-
-## 🎯 Next Steps
-- [ ] Implement stack in both languages
-- [ ] Implement queue in both languages
-- [ ] Add performance benchmarks
-- [ ] Add unit tests
+**Logan Stacy**
+- UCF Computer Engineering (BS/MS Accelerated - ISML Track)
+- CompTIA Security+ & Network+ Certified
+- [LinkedIn](https://linkedin.com/in/logan-stacy)
+- [GitHub](https://github.com/lo067291)
 
 ## 📚 Resources
 - UCF COP 3502C course materials
 - Real Python for C Programmers
 - Python Official Documentation
-
 ---
-
-**Author:** Logan Stacy  
-**Course:** Computer Engineering BS/MS @ UCF  
-**Contact:** [Your LinkedIn](your-linkedin-url)
