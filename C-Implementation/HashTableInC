@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define TABLE_SIZE 10
+
+typedef struct Entry {
+    char* key;
+    int value;
+    struct Entry* next;
+} Entry;
+
+typedef struct HashTable {
+    Entry* buckets[TABLE_SIZE];
+} HashTable;
+
+HashTable* create_table() {
+    HashTable* table = (HashTable*)malloc(sizeof(HashTable));
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        table->buckets[i] = NULL;
+    }
+    return table;
+}
+
+unsigned int hash(char* key) {
+    unsigned int hash_value = 0;
+    while (*key) {
+        hash_value = (hash_value * 31) + (*key);
+        key++;
+    }
+    return hash_value % TABLE_SIZE;
+}
+
+void insert(HashTable* table, char* key, int value) {
+    unsigned int index = hash(key);
+    Entry* new_entry = (Entry*)malloc(sizeof(Entry));
+    new_entry->key = strdup(key);
+    new_entry->value = value;
+    new_entry->next = table->buckets[index];
+    table->buckets[index] = new_entry;
+}
+
+int get(HashTable* table, char* key) {
+    unsigned int index = hash(key);
+    Entry* entry = table->buckets[index];
+
+    while (entry != NULL) {
+        if (strcmp(entry->key, key) == 0) {
+            return entry->value;
+        }
+        entry = entry->next;
+    }
+    printf("Key not found\n");
+    return -1;
+}
+
+int main() {
+    HashTable* table = create_table();
+    insert(table, "apple", 5);
+    insert(table, "banana", 12);
+    insert(table, "cherry", 8);
+
+    printf("apple: %d\n", get(table, "apple"));
+    printf("banana: %d\n", get(table, "banana"));
+    printf("cherry: %d\n", get(table, "cherry"));
+
+    return 0;
+}
