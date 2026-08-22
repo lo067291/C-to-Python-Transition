@@ -10,10 +10,10 @@ complexity, and language-level design tradeoffs.
 
 | Structure | C Implementation | Python Implementation |
 |---|---|---|
-| Linked List | linked_list/linked_list.c | linked_list/linked_list.py |
-| Stack | stack/stack.c | stack/stack.py |
-| Queue | queue/queue.c | queue/queue_impl.py |
-| Hash Table | hashtable/hashtable.c | hashtable/hashtable.py |
+| Linked List | LinkedListsInC | LinkedListsInPython |
+| Stack | StackInC | StackInPython |
+| Queue | QueueInC | QueueInPython |
+| Hash Table | HashTableInC | HashTableInPython |
 
 ## Technical Deep Dive
 
