@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node* next;
+} Node;
+
+typedef struct Stack {
+    Node* top;
+} Stack;
+
+Stack* create_stack() {
+    Stack* s = (Stack*)malloc(sizeof(Stack));
+    s->top = NULL;
+    return s;
+}
+
+void push(Stack* s, int value) {
+    Node* new_node = (Node*)malloc(sizeof(Node));
+    new_node->data = value;
+    new_node->next = s->top;
+    s->top = new_node;
+}
+
+int pop(Stack* s) {
+    if (s->top == NULL) {
+        printf("Stack underflow\n");
+        return -1;
+    }
+    Node* temp = s->top;
+    int value = temp->data;
+    s->top = temp->next;
+    free(temp);
+    return value;
+}
+
+int peek(Stack* s) {
+    if (s->top == NULL) {
+        printf("Stack is empty\n");
+        return -1;
+    }
+    return s->top->data;
+}
+
+int is_empty(Stack* s) {
+    return s->top == NULL;
+}
+
+int main() {
+    Stack* s = create_stack();
+    push(s, 10);
+    push(s, 20);
+    push(s, 30);
+
+    printf("Top: %d\n", peek(s));
+    printf("Popped: %d\n", pop(s));
+    printf("Popped: %d\n", pop(s));
+    printf("Is empty: %d\n", is_empty(s));
+
+    return 0;
+}
