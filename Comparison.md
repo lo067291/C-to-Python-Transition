@@ -1,6 +1,6 @@
 # C to Python: Implementation Comparison
 
-This comparison describes the actual implementations in this repository. The Python linked-list port currently has the issues listed in the [README](README.md); it should not be treated as a fully working equivalent yet.
+This comparison describes the implementations and regression-tested behavior in this repository. See the [README](README.md) for run and test commands.
 
 ## Representation and Updates
 
@@ -19,7 +19,7 @@ Python methods update attributes on the referenced instance. Rebinding the local
 
 ## Memory Management
 
-The C implementations allocate nodes with malloc. Stack pop, queue dequeue, and linked-list deletion call free for removed nodes. The hash table duplicates keys with strdup. However, the demos do not provide full cleanup for all remaining allocations, and allocation failures are not checked.
+The C implementations allocate nodes with malloc. Stack pop, queue dequeue, and linked-list deletion call free for removed nodes. The hash table duplicates keys with malloc and strcpy. Allocations are checked, and the demos call destroy_list, destroy_stack, destroy_queue, or destroy_table to release remaining structures on normal exit.
 
 Python implementations remove links to nodes rather than manually freeing memory. Objects become eligible for automatic reclamation once no longer reachable; these examples do not promise a specific reclamation time.
 
@@ -27,12 +27,9 @@ Python implementations remove links to nodes rather than manually freeing memory
 
 The C list supports front insertion, end insertion, first-match deletion, display, and sorted insertion. End insertion traverses the list because no tail pointer is stored.
 
-The C sorted-insertion conditions implement ascending order, assuming the existing list is sorted. Its descending-order comment is inaccurate. Arbitrary front/end insertion can break that precondition.
+Both sorted-insertion methods implement ascending order, assuming the existing list is already sorted. Arbitrary front/end insertion can break that precondition.
 
-The Python port attempts the same operations but has:
-- an entry-point indentation problem;
-- a selfself/self mismatch and missing new_node in insert_end;
-- inconsistent sorted-insertion comparisons.
+The Python port supports the same operations. Its menu entry point is outside the class definition, and insertion updates the instance's head and links. Both menus validate integer input and exit cleanly at end-of-input.
 
 ## Stacks and Queues
 

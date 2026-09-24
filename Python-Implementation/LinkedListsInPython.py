@@ -36,14 +36,15 @@ class LinkedList:
         new_node = Node(item)
         new_node.next = self.head
         self.head = new_node
-    def insert_end(selfself, item):
+    def insert_end(self, item):
         """
         Insert at end of List
         Time Complexity: O(n)
         """
+        new_node = Node(item)
         #Case 1: Empty List
         if self.head is None:
-            self.head = Node(item)
+            self.head = new_node
             return
         #Case 2: Teaverse to end, insert
         current = self.head
@@ -52,7 +53,7 @@ class LinkedList:
         current.next = new_node
     def insert_sorted(self, item):
         """
-        Insert in sorted order (descending)
+        Insert in ascending order; the existing list must be sorted.
         Time Complexity: O(n)
         """
         new_node = Node(item)
@@ -63,7 +64,7 @@ class LinkedList:
             return
         #Case 2: Find insertion point
         current = self.head
-        while current.next is not None and current.next.data > item:
+        while current.next is not None and current.next.data < item:
             current = current.next
         new_node.next = current.next
         current.next = new_node
@@ -98,50 +99,43 @@ class LinkedList:
             current = current.next
         print()
 
-    def main():
-        """
-        Main menu loop - equivalent to C's main()
-        """
-        ll = LinkedList()
+def read_integer(prompt):
+    """Read an integer; return None when input ends."""
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+        except EOFError:
+            return None
 
-        while True:
-            print("\nMenu: 1. insert front, 2. insert end, 3. delete, 5. sorted insert, 4. exit: ", end="")
-            try:
-                choice = int(input())
-            except ValueError:
-                print("Invalid input. Please enter a number.")
-                continue
 
-            if choice == 4:
-                print("\nGOOD BYE>>>>")
-                break
+def main():
+    ll = LinkedList()
+    while True:
+        choice = read_integer(
+            "\nMenu: 1. insert front, 2. insert end, 3. delete, "
+            "5. sorted insert (ascending list required), 4. exit: "
+        )
+        if choice is None or choice == 4:
+            print("\nGOOD BYE>>>>")
+            break
+        if choice not in (1, 2, 3, 5):
+            print("Invalid option. Please try again.")
+            continue
+        data = read_integer("\nEnter data: ")
+        if data is None:
+            break
+        if choice == 1:
+            ll.insert_front(data)
+        elif choice == 2:
+            ll.insert_end(data)
+        elif choice == 3:
+            ll.delete(data)
+        else:
+            ll.insert_sorted(data)
+        ll.display()
 
-            elif choice == 1:
-                print("\nEnter data: ", end="")
-                data = int(input())
-                ll.insert_front(data)
-                ll.display()
 
-            elif choice == 2:
-                print("\nEnter data: ", end="")
-                data = int(input())
-                ll.insert_end(data)
-                ll.display()
-
-            elif choice == 3:
-                print("\nEnter data to delete: ", end="")
-                data = int(input())
-                ll.delete(data)
-                ll.display()
-
-            elif choice == 5:
-                print("\nEnter data: ", end="")
-                data = int(input())
-                ll.insert_sorted(data)
-                ll.display()
-
-            else:
-                print("Invalid option. Please try again.")
-
-    if __name__ == "__main__":
-        main()
+if __name__ == "__main__":
+    main()

@@ -16,6 +16,10 @@ typedef struct HashTable {
 
 HashTable* create_table() {
     HashTable* table = (HashTable*)malloc(sizeof(HashTable));
+    if (table == NULL) {
+        perror("Allocation failed");
+        exit(EXIT_FAILURE);
+    }
     for (int i = 0; i < TABLE_SIZE; i++) {
         table->buckets[i] = NULL;
     }
@@ -34,7 +38,17 @@ unsigned int hash(char* key) {
 void insert(HashTable* table, char* key, int value) {
     unsigned int index = hash(key);
     Entry* new_entry = (Entry*)malloc(sizeof(Entry));
-    new_entry->key = strdup(key);
+    if (new_entry == NULL) {
+        perror("Allocation failed");
+        exit(EXIT_FAILURE);
+    }
+    new_entry->key = malloc(strlen(key) + 1);
+    if (new_entry->key == NULL) {
+        free(new_entry);
+        perror("Allocation failed");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(new_entry->key, key);
     new_entry->value = value;
     new_entry->next = table->buckets[index];
     table->buckets[index] = new_entry;
@@ -54,7 +68,21 @@ int get(HashTable* table, char* key) {
     return -1;
 }
 
-int main() {
+void destroy_table(HashTable* table) {
+    if (table == NULL) return;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Entry* entry = table->buckets[i];
+        while (entry != NULL) {
+            Entry* next = entry->next;
+            free(entry->key);
+            free(entry);
+            entry = next;
+        }
+    }
+    free(table);
+}
+
+int main(void) {
     HashTable* table = create_table();
     insert(table, "apple", 5);
     insert(table, "banana", 12);
@@ -64,5 +92,7 @@ int main() {
     printf("banana: %d\n", get(table, "banana"));
     printf("cherry: %d\n", get(table, "cherry"));
 
+    destroy_table(table);
     return 0;
 }
+

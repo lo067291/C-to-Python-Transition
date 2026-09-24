@@ -13,6 +13,10 @@ typedef struct Queue {
 
 Queue* create_queue() {
     Queue* q = (Queue*)malloc(sizeof(Queue));
+    if (q == NULL) {
+        perror("Allocation failed");
+        exit(EXIT_FAILURE);
+    }
     q->front = NULL;
     q->rear = NULL;
     return q;
@@ -20,6 +24,10 @@ Queue* create_queue() {
 
 void enqueue(Queue* q, int value) {
     Node* new_node = (Node*)malloc(sizeof(Node));
+    if (new_node == NULL) {
+        perror("Allocation failed");
+        exit(EXIT_FAILURE);
+    }
     new_node->data = value;
     new_node->next = NULL;
 
@@ -52,7 +60,17 @@ int is_empty(Queue* q) {
     return q->front == NULL;
 }
 
-int main() {
+void destroy_queue(Queue* q) {
+    if (q == NULL) return;
+    while (q->front != NULL) {
+        Node* next = q->front->next;
+        free(q->front);
+        q->front = next;
+    }
+    free(q);
+}
+
+int main(void) {
     Queue* q = create_queue();
     enqueue(q, 10);
     enqueue(q, 20);
@@ -62,5 +80,7 @@ int main() {
     printf("Dequeued: %d\n", dequeue(q));
     printf("Is empty: %d\n", is_empty(q));
 
+    destroy_queue(q);
     return 0;
 }
+

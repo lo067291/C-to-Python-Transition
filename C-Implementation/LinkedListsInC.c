@@ -10,6 +10,10 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#include<errno.h>
+#include<limits.h>
+#include<ctype.h>
+#include<string.h>
 
 typedef struct node {
     int data;
@@ -20,6 +24,10 @@ typedef struct node {
 // Returns pointer to allocated node
 node* create_node(int item) {
     node* temp = (node*)malloc(sizeof(node));
+    if (temp == NULL) {
+        perror("Allocation failed");
+        exit(EXIT_FAILURE);
+    }
     temp->data = item;
     temp->next = NULL;
     return temp;
@@ -33,7 +41,7 @@ node* insert_front(node* head, int item) {
     return temp;
 }
 
-// Inserts node in sorted order (descending)
+// Inserts in ascending order; the existing list must be sorted.
 // Time complexity: O(n)
 node* insert_sorted(node* head, int item) {
     node* temp = create_node(item);
@@ -116,43 +124,61 @@ void display(node* t) {
     printf("\n");
 }
 
-int main() {
-    node* root = NULL;
-    int ch, ele, del;
-    
-    while(1) {
-        printf("\nMenu: 1. insert front, 2. insert end, 3. delete, 5. sorted insert, 4. exit: ");
-        scanf("%d", &ch);
-        
-        if(ch == 4) {
-            printf("\nGOOD BYE>>>>\n");
-            break;
-        }
-        if(ch == 1) {
-            printf("\nEnter data: ");
-            scanf("%d", &ele);
-            root = insert_front(root, ele);
-            display(root);
-        }
-        if(ch == 2) {
-            printf("\nEnter data: ");
-            scanf("%d", &ele);
-            root = insert_end(root, ele);
-            display(root);
-        }
-        if(ch == 3) {
-            printf("\nEnter data to delete: ");
-            scanf("%d", &del);
-            root = DelList(root, del);
-            display(root);
-        }
-        if(ch == 5) {
-            printf("\nEnter data: ");
-            scanf("%d", &ele);
-            root = insert_sorted(root, ele);
-            display(root);
-        }
+void destroy_list(node* head) {
+    while (head != NULL) {
+        node* next = head->next;
+        free(head);
+        head = next;
     }
-    
+}
+
+// Retry malformed input; return 0 at EOF rather than reusing stale values.
+int read_integer(const char* prompt, int* value) {
+    char buffer[128];
+    for (;;) {
+        fputs(prompt, stdout);
+        if (fgets(buffer, sizeof(buffer), stdin) == NULL) return 0;
+        if (strchr(buffer, '\n') == NULL && !feof(stdin)) {
+            int ch;
+            while ((ch = getchar()) != '\n' && ch != EOF) {}
+            puts("Invalid input. Please enter a number.");
+            continue;
+        }
+        errno = 0;
+        char* end;
+        long parsed = strtol(buffer, &end, 10);
+        if (end == buffer || errno == ERANGE || parsed < INT_MIN || parsed > INT_MAX) {
+            puts("Invalid input. Please enter a number.");
+            continue;
+        }
+        while (isspace((unsigned char)*end)) end++;
+        if (*end != '\0') {
+            puts("Invalid input. Please enter a number.");
+            continue;
+        }
+        *value = (int)parsed;
+        return 1;
+    }
+}
+
+int main(void) {
+    node* root = NULL;
+    int choice, item;
+    while (read_integer("\nMenu: 1. insert front, 2. insert end, 3. delete, "
+                        "5. sorted insert (ascending list required), 4. exit: ", &choice)) {
+        if (choice == 4) break;
+        if (choice != 1 && choice != 2 && choice != 3 && choice != 5) {
+            puts("Invalid option. Please try again.");
+            continue;
+        }
+        if (!read_integer("\nEnter data: ", &item)) break;
+        if (choice == 1) root = insert_front(root, item);
+        else if (choice == 2) root = insert_end(root, item);
+        else if (choice == 3) root = DelList(root, item);
+        else root = insert_sorted(root, item);
+        display(root);
+    }
+    destroy_list(root);
+    puts("\nGOOD BYE>>>>");
     return 0;
 }
