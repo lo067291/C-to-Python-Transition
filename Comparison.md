@@ -1,114 +1,76 @@
-# C to Python: Detailed Comparison
+# C to Python: Implementation Comparison
+
+This comparison describes the actual implementations in this repository. The Python linked-list port currently has the issues listed in the [README](README.md); it should not be treated as a fully working equivalent yet.
+
+## Representation and Updates
+
+| Design point | C implementation | Python implementation |
+|---|---|---|
+| Node | struct containing data and a next pointer | Node instance containing data and a next reference |
+| Empty link | NULL | None |
+| Linked-list head update | Return the new head and reassign it in the caller | Assign to self.head |
+| Stack | Struct with a top pointer | Object with a top attribute |
+| Queue | Struct with front and rear pointers | Object with front and rear attributes |
+| Hash table | Array of 10 bucket pointers | List of 10 bucket references |
+
+C passes a pointer argument by value. A function can change the pointed-to data, but assigning to its local pointer does not reassign the caller's pointer variable. The linked-list functions therefore return the new head; another C design could use a pointer-to-pointer.
+
+Python methods update attributes on the referenced instance. Rebinding the local self variable would not replace the caller's reference.
 
 ## Memory Management
 
-**C** requires manual allocation and deallocation for every node:
+The C implementations allocate nodes with malloc. Stack pop, queue dequeue, and linked-list deletion call free for removed nodes. The hash table duplicates keys with strdup. However, the demos do not provide full cleanup for all remaining allocations, and allocation failures are not checked.
 
-```c
-Node* new_node = (Node*)malloc(sizeof(Node));
-// ... use the node ...
-free(temp);  // must be called explicitly or memory leaks
-```
+Python implementations remove links to nodes rather than manually freeing memory. Objects become eligible for automatic reclamation once no longer reachable; these examples do not promise a specific reclamation time.
 
-Forgetting `free()` in any function that removes a node (e.g., `pop()`, 
-`dequeue()`, `DelList()`) causes a memory leak - the memory remains 
-reserved but inaccessible for the lifetime of the program.
+## Linked Lists
 
-**Python** uses automatic garbage collection. When a node has no more 
-references pointing to it, Python reclaims the memory without any 
-explicit action:
+The C list supports front insertion, end insertion, first-match deletion, display, and sorted insertion. End insertion traverses the list because no tail pointer is stored.
 
-```python
-self.top = self.top.next  # old node is now unreferenced
-# Python's garbage collector frees it automatically
-```
+The C sorted-insertion conditions implement ascending order, assuming the existing list is sorted. Its descending-order comment is inaccurate. Arbitrary front/end insertion can break that precondition.
 
-This is a meaningful tradeoff: C gives precise control over memory 
-timing (useful in embedded/real-time systems where you can't afford 
-unpredictable GC pauses), while Python trades that control for safety 
-and reduced developer burden.
+The Python port attempts the same operations but has:
+- an entry-point indentation problem;
+- a selfself/self mismatch and missing new_node in insert_end;
+- inconsistent sorted-insertion comparisons.
 
-## Struct/Class Definition
+## Stacks and Queues
 
-**C** defines a node as a struct with an explicit pointer field:
+Both stacks insert and remove at the head, giving last-in, first-out behavior.
 
-```c
-typedef struct Node {
-    int data;
-    struct Node* next;
-} Node;
-```
+Both queues retain front and rear references, allowing enqueue at the rear and dequeue at the front without traversing the queue. Removing the final node clears both references.
 
-**Python** defines the same concept as a class, using `self` to bind 
-attributes to each instance rather than a raw pointer:
+Empty pop/dequeue/peek operations print a message. C returns -1, while Python returns None. Neither implementation uses exceptions or a separate success flag.
 
-```python
-class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
-```
+## Hash Tables
 
-## Function Signatures and Return Values
+Both versions use a polynomial-style string hash with multiplier 31, a fixed 10-bucket array/list, and linked-list collision chains.
 
-**C** functions that modify a structure often must return the new head/
-root, because C passes pointers by value - the caller's pointer variable 
-itself can't be modified by the function:
+Insertion prepends an entry without searching for an existing key. Inserting the same key again therefore creates a duplicate; get returns the newest matching entry. There is no deletion or resizing operation.
 
-```c
-node* insert_front(node* head, int item) {
-    // ...
-    return temp;  // caller must reassign: head = insert_front(head, item);
-}
-```
+C accumulates the hash in an unsigned int; Python's accumulator uses arbitrary-precision integers. Because their overflow behavior differs, identical bucket placement across languages is not guaranteed for long keys.
 
-**Python** methods can modify `self` directly, since `self` is a 
-reference to the actual object - no return value is needed to "pass 
-back" the update:
+## Complexity of These Implementations
 
-```python
-def insert_front(self, item):
-    new_node = Node(item)
-    new_node.next = self.head
-    self.head = new_node  # modifies the actual object, no return needed
-```
+Let n be the number of stored nodes and b be the length of the selected hash bucket. Hash-table entries below describe structural work after hashing, excluding variable-length key copying/comparison and Python integer-arithmetic costs.
 
-## Hash Table: Manual Implementation vs. Built-in Dict
+| Structure | Operation | Structural work |
+|---|---|---|
+| Linked list | Insert at front | O(1) |
+| Linked list | Insert at end, sorted insertion, deletion, display | O(n) |
+| Stack | push, pop, peek, is_empty | O(1) |
+| Queue | enqueue, dequeue, is_empty | O(1) |
+| Hash table | Prepend an entry | O(1) after hashing/allocation/key copying |
+| Hash table | get | O(b) entry visits after hashing |
 
-This repo implements a hash table manually (custom hash function, 
-chaining for collision resolution) to demonstrate understanding of how 
-hash tables work internally - open addressing vs. chaining, why a good 
-hash function distributes keys evenly, and how collisions are resolved.
+Both hash implementations must scan the key to compute its hash. C also copies each inserted key. String comparisons during lookup add costs depending on key length.
 
-In real Python code, you would almost always use the built-in `dict` 
-instead - it's a highly optimized C-implemented hash table already. 
-This manual version exists purely for learning, not as something to 
-use in production.
+With a fixed 10 buckets, chain lengths grow as more entries are added. Expected constant-time lookup should not be claimed as n grows without controlling load factor. Worst-case lookup visits all n entries.
 
-## Complexity Comparison
+## Cross-Language Tradeoffs
 
-| Structure | Operation | C | Python (this repo) | Python (built-in) |
-|---|---|---|---|---|
-| Stack | push/pop | O(1) | O(1) | O(1) (list.append/pop) |
-| Queue | enqueue/dequeue | O(1) | O(1) | O(1) (collections.deque) |
-| Hash Table | insert/get (avg) | O(1) | O(1) | O(1) (dict) |
-| Hash Table | insert/get (worst case) | O(n) | O(n) | O(n), rare in practice |
+C exposes pointer manipulation, ownership, allocation, and explicit cleanup. Python expresses the same linked structure through objects and references with less manual memory-management work.
 
-## Code Verbosity
+Neither language removes the algorithm's traversal cost: a tail-less linked list still requires a traversal for end insertion, and a long hash chain still requires sequential searching.
 
-Roughly, the Python implementations run 20-30% shorter than their C 
-equivalents for the same functionality, primarily due to:
-- No manual memory management calls
-- No explicit type declarations
-- Built-in object model reducing struct boilerplate
-
-## When to Use Which
-
-**C** when: performance is critical, memory footprint must be tightly 
-controlled, or working in embedded/real-time systems (directly relevant 
-to my embedded systems projects - MSP430, TI-RSLK).
-
-**Python** when: development speed matters more than raw performance, 
-or working with data/ML pipelines where existing libraries (NumPy, 
-Pandas, scikit-learn) already provide optimized implementations of 
-these structures.
+These implementations are learning exercises. Their educational value comes from making those mechanics visible; the repository does not include a measured speed, memory, or code-size benchmark.
